@@ -8,11 +8,11 @@ date: "2024-03-12"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
+#Carga de bases
 ```{r}
 library(pacman)
-p_load(rvest,xml2,stringr)
-
+p_load(rvest,xml2,stringr,tidyverse,xlsx,RSelenium,httr)
+rm(list = ls())
 ```
 
 ```{r}
@@ -32,39 +32,7 @@ data <- data.frame(titulo = titulo, obras = obras, autores = autores, fechas = f
 write.csv(data, "alternativateatral.csv")
 
 ```
-
-```{r}
-url <- "http://www.alternativateatral.com.ar/rubro.asp?c=2&p=38"
-html <- read_html(url)
-
-# Seleccionar la tabla
-tabla <- html_nodes(html, "table.texto")
-
-# Extraer los nombres (dentro de los tags "a")
-nombres <- tabla %>% 
-  html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  html_text()          # Extraer el texto de los tags "a"
-
-# # Extraer los links (atributo "href" de los tags "a")
-# links <- tabla %>% 
-#   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-#   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-#   html_attr("href")    # Extraer el valor del atributo "href"
-# 
-# # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-# texto_celdas <- tabla %>% 
-#   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-#   html_text() %>%        # Extraer el texto completo de las celdas
-#   str_trim()            # Eliminar espacios en blanco al inicio y final
-
-# Puedes crear un data frame para organizar los datos
-datos_tabla <- data.frame(Nombre = nombres)
-
-# Imprimir los primeros elementos del data frame
-head(datos_tabla)
-```
-
+#Actores
 ```{r}
 # Lista para almacenar los datos
 datos_totales <- list()
@@ -109,280 +77,109 @@ for (i in 1:1000) {
 # Combinar los data frames de la lista en un solo data frame
 datos_final <- do.call(rbind.data.frame, datos_totales)
 ```
-
+#Carga de las bases
 ```{r}
-# Lista para almacenar los datos
-datos_totales2 <- list()
+# Cargar bases del 1 al 13
+base1 <- read.csv("base1.csv", header = TRUE)  # Suponiendo que la primera base está separada por comas
+base2 <- read.csv2("base2.csv", header = TRUE, sep = ",")  # Suponiendo que la segunda base está separada por punto y coma
+base3 <- read.csv("base3.csv", header = TRUE)  # Suponiendo que la tercera base está separada por comas
+base4 <- read.csv2("base4.csv", header = TRUE, sep = ",")  # Suponiendo que la cuarta base está separada por punto y coma
+base5 <- read.csv("base5.csv", header = TRUE)  # Suponiendo que la quinta base está separada por comas
+base6 <- read.csv2("base6.csv", header = TRUE, sep = ";")  # Suponiendo que la sexta base está separada por punto y coma
+base7 <- read.csv("base7.csv", header = TRUE)  # Suponiendo que la séptima base está separada por comas
+base8 <- read.csv2("base8.csv", header = TRUE, sep = ";")  # Suponiendo que la octava base está separada por punto y coma
+base9 <- read.csv("base9.csv", header = TRUE, sep = ";")  # Suponiendo que la novena base está separada por comas
+base10 <- read.csv2("base10.csv", header = TRUE, sep = ";")  # Suponiendo que la décima base está separada por punto y coma
+base11 <- read.csv("base11.csv", header = TRUE, sep = ";")  # Suponiendo que la undécima base está separada por comas
+base12 <- read.csv2("base12.csv", header = TRUE, sep = ";")  # Suponiendo que la duodécima base está separada por punto y coma
+base13 <- read.csv("base13.csv", header = TRUE, sep = ";")  # Suponiendo que la decimotercera base está separada por comas
 
-# Bucle para iterar sobre las páginas
-for (i in 1001:1500) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
-  
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales2[[i]] <- datos_pagina
-}
+# Crear una lista de todas las bases
+bases <- list(base1, base2, base3, base4, base5, base6, base7, base8, base9, base10, base11, base12, base13)
 
-# Combinar los data frames de la lista en un solo data frame
-datos_final2 <- do.call(rbind.data.frame, datos_totales2)
+# Unificar todas las bases en una sola
+base_unificada <- do.call(rbind, bases) %>% 
+  select(-1)
+base_unificada <- base_unificada[apply(base_unificada, 1, function(row) any(grepl("\\w", row))), ]
+base_unificada <- as.data.frame(base_unificada)
+
+write.csv(base_unificada, "base unificada.csv")
 ```
 
 ```{r}
-# Lista para almacenar los datos
-datos_totales4 <- list()
+base_unificada <- read.csv("base unificada.csv")
+base_unificada$base_unificada <- gsub("DÂ´", "D'", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("CÃ­a", "Cía.", base_unificada$base_unificada) 
+base_unificada$base_unificada <- gsub("Ã±Ã­a", "añía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Compaañía", "Compañía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("iÃ³n", "ión", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("AgustÃ­n ", "Agustín", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("nÃ¡n", "nán", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("olÃ¡", "olá", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("iÃ¡n", "ián", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("arÃ­a", "aría", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("InÃ©s", "Inés", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã­b", "íb", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã³ni", "óni", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("JosÃ©", "José", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã­ct", "íct", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("LucÃ­a", "Lucía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("GastÃ³n", "Gastón", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("BelÃ©n", "Belén", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("MatÃ­as", "Matías", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("SofÃ­a", "Sofía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("IvÃ¡n", "Iván", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("AgÃ¼ero", "Aguero", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("AndrÃ©s", "Andrés", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("NuÃ±ez", "Nuñez", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã¡rc", "árc", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("cÃ³n", "cón", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("rÃ¡z ", "raz", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã­o", "ío", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("lÃ­a", "ía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã©", "é", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã©n", "én", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("nÃ­", "ní", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã¡", "á", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("uÃ±", "ñ", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã³n", "ón", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã±", "ñ", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("cÃ­a", "cía", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã³", "ó", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Ã", "í", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("¼", "u", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Â´", "'", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("§", "ç", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("â€œbaskoâ€", "basko", base_unificada$base_unificada)
+base_unificada$base_unificada <- gsub("Sebastián â€œbertaâ€ Mñiz", "Sebastián Berta Muñiz", base_unificada$base_unificada)
 
-# Bucle para iterar sobre las páginas
-for (i in 1601:2000) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
-  
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales4[[i]] <- datos_pagina
-}
+base_unificada <- base_unificada[!grepl("[[:punct:]]", base_unificada$base_unificada), ] %>% 
+  filter(base_unificada != "**AlA**" | base_unificada !="@") %>% 
+  rename(ID = X,
+         Nombre = base_unificada)
 
-# Combinar los data frames de la lista en un solo data frame
-datos_final4 <- do.call(rbind.data.frame, datos_totales4)
-```
-
-
-```{r}
-# Lista para almacenar los datos
-datos_totales5 <- list()
-
-# Bucle para iterar sobre las páginas
-for (i in 2001:2400) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
-
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales5[[i]] <- datos_pagina
-}
-
-# Combinar los data frames de la lista en un solo data frame
-datos_final5 <- do.call(rbind.data.frame, datos_totales5)
-write.csv(datos_final5, "base5.csv")
+base_unificada <- base_unificada[grep("[a-zA-Z]", base_unificada$Nombre), ]
+write.xlsx(base_unificada, "base de actores.xlsx")
 ```
 
 ```{r}
-# Lista para almacenar los datos
-datos_totales7 <- list()
+palabras <- unlist(strsplit(as.character(base_unificada$base_unificada), " "))
 
-# Bucle para iterar sobre las páginas
-for (i in 2637:2700) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
+# Contar la frecuencia de cada palabra
+ocurrencias <- table(palabras)
 
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales7[[i]] <- datos_pagina
-}
+# Ver los resultados
+nuevo_df <- data.frame(cadena = names(ocurrencias), frecuencia = as.numeric(ocurrencias)) %>% 
+  filter(frecuencia >1)
 
-# Combinar los data frames de la lista en un solo data frame
-datos_final7 <- do.call(rbind.data.frame, datos_totales7)
-write.csv(datos_final7, "base7.csv")
+# Filtrar las filas que contienen caracteres especiales en la columna "cadena"
+cadenas_con_especiales <- ocurrencias[grep("[[:punct:]]", names(ocurrencias))]
+
+# Crear un nuevo dataframe con las ocurrencias de las cadenas con caracteres especiales
+nuevo_df_ocurrencias <- data.frame(cadena = names(cadenas_con_especiales), frecuencia = cadenas_con_especiales)
+
 ```
 
-```{r}
-# Lista para almacenar los datos
-datos_totales9 <- list()
 
-# Bucle para iterar sobre las páginas
-for (i in 2792:3000) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
 
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales9[[i]] <- datos_pagina
-}
-
-# Combinar los data frames de la lista en un solo data frame
-datos_final9 <- do.call(rbind.data.frame, datos_totales9)
-```
-
-```{r}
-# Lista para almacenar los datos
-datos_totales13 <- list()
-
-# Bucle para iterar sobre las páginas
-for (i in 4401:4908) {
-  
-  # Crear la URL para la página actual
-  url <- paste0("http://www.alternativateatral.com.ar/rubro.asp?c=2&p=", i)
-  
-  # Leer el HTML de la página
-  html <- read_html(url)
-
-  # Seleccionar la tabla
-  tabla <- html_nodes(html, "table.texto")
-  
-  # Extraer los nombres (dentro de los tags "a")
-  nombres <- tabla %>%
-    html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-    html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-    html_text()          # Extraer el texto de los tags "a"
-  
-  # # Extraer los links (atributo "href" de los tags "a")
-  # links <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_nodes("a") %>%  # Seleccionar los tags "a" dentro de las celdas
-  #   html_attr("href")    # Extraer el valor del atributo "href"
-  # 
-  # # (Opcional) Extraer texto adicional de las celdas (sin ser links)
-  # texto_celdas <- tabla %>%
-  #   html_nodes("td") %>%  # Seleccionar todas las celdas (td) de la tabla
-  #   html_text() %>%        # Extraer el texto completo de las celdas
-  #   str_trim()            # Eliminar espacios en blanco al inicio y final
-  
-  # Crear un data frame para la página actual
-  datos_pagina <- data.frame(Nombre = nombres)
-  
-  # Agregar los datos de la página actual a la lista
-  datos_totales13[[i]] <- datos_pagina
-}
-
-# Combinar los data frames de la lista en un solo data frame
-datos_final13 <- do.call(rbind.data.frame, datos_totales13)
-# write.csv2(datos_final6, "base6.csv")
-# write.csv2(datos_final8, "base8.csv")
- write.csv2(datos_final13, "base13.csv")
-```
 
